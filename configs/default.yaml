@@ -1,0 +1,41 @@
+# default profile
+llm:
+  provider: openai
+  model: gpt-4o-mini
+  temperature: 0.3
+  max_tokens: 1500
+
+agents:
+  research:
+    enabled: true
+  transport:
+    enabled: true
+  hotel:
+    enabled: true
+  attractions:
+    enabled: true
+  weather:
+    enabled: true
+  budget:
+    enabled: true
+
+graph:
+  recursion_limit: 30
+  parallel_fanout: true
+
+cache:
+  backend: sqlite
+  ttl_seconds:
+    weather: 3600
+    flights: 1800
+    hotels: 1800
+    attractions: 86400
+
+api:
+  rate_limit_per_minute: 60
+  request_timeout_seconds: 12
+
+defaults:
+  currency: USD
+  pace: moderate  # relaxed | moderate | packed
+  party_size: 2
