@@ -24,9 +24,14 @@ against real APIs gives much better results.
 
 ## stack
 
-LangGraph 0.2 for orchestration, LangChain 0.3 for prompt management,
-OpenAI / Anthropic providers via a thin abstraction, FastAPI service,
-Streamlit chat UI, SQLite/Redis cache.
+- LangGraph 0.2 for orchestration (state machine + conditional edges)
+- LangChain 0.3 for prompt management
+- OpenAI / Anthropic providers via a thin abstraction
+- FastAPI service
+- Streamlit chat UI with day-by-day tabs
+- SQLite or Redis cache (TTL keyed per data type)
+- real APIs: OpenWeather (forecast), Amadeus or stub (flights),
+  hotel API stub, Maps for nearby attractions
 
 ## architecture
 
@@ -67,4 +72,4 @@ streamlit run streamlit_app.py
 profiles in `configs/`. defaults at `configs/default.yaml`,
 strict-budget at `configs/budget_strict.yaml`.
 
-WIP — see `_planning/` for design notes.
+WIP, see `_planning/` for design notes.
