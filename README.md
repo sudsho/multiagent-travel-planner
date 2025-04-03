@@ -14,18 +14,57 @@ against real APIs gives much better results.
 
 ## agents
 
-- `research_agent` — parses the user query, fills missing fields
-- `transport_agent` — looks up flights/trains
-- `hotel_agent` — picks lodging
-- `attractions_agent` — picks things to do, clusters by neighborhood
-- `weather_agent` — pulls forecast, flags rainy days
-- `budget_agent` — reconciles cost vs target
-- `coordinator.supervisor` — routes between agents and decides when to stop
+- `research_agent` parses the user query, fills missing fields
+- `transport_agent` looks up flights/trains
+- `hotel_agent` picks lodging
+- `attractions_agent` picks things to do, clusters by neighborhood
+- `weather_agent` pulls forecast, flags rainy days
+- `budget_agent` reconciles cost vs target
+- `coordinator.supervisor` routes between agents and decides when to stop
 
 ## stack
 
 LangGraph 0.2 for orchestration, LangChain 0.3 for prompt management,
 OpenAI / Anthropic providers via a thin abstraction, FastAPI service,
 Streamlit chat UI, SQLite/Redis cache.
+
+## architecture
+
+```
+        +-----------+
+        | streamlit |
+        +-----+-----+
+              |
+              v
+        +-----+-----+
+        | fastapi   |
+        +-----+-----+
+              |
+              v   +---------------+
+       +------+---|  supervisor   |---+
+       |          +---------------+   |
+       v                              v
+   research                       budget
+       |                              ^
+       v                              |
+   transport / hotel / weather / attractions
+       |
+       v
+   day scheduler --> itinerary
+```
+
+## quickstart
+
+```
+pip install -r requirements.txt
+cp .env.example .env  # fill keys
+python -m src.api.main  # FastAPI on :8000
+streamlit run streamlit_app.py
+```
+
+## config
+
+profiles in `configs/`. defaults at `configs/default.yaml`,
+strict-budget at `configs/budget_strict.yaml`.
 
 WIP — see `_planning/` for design notes.
