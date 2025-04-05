@@ -1,0 +1,36 @@
+{
+  "lisbon": [
+    {"name": "Belem Tower", "category": "landmark", "rating": 4.6, "duration_hours": 1.5, "price": 8.0, "lat": 38.6916, "lng": -9.2160, "notes": "manueline; go early"},
+    {"name": "Jeronimos Monastery", "category": "landmark", "rating": 4.7, "duration_hours": 2.0, "price": 12.0, "lat": 38.6979, "lng": -9.2068, "notes": "queue 30m"},
+    {"name": "Time Out Market", "category": "food", "rating": 4.5, "duration_hours": 2.0, "price": 25.0, "lat": 38.7068, "lng": -9.1457, "notes": "lunch hub"},
+    {"name": "Alfama walking tour", "category": "walking", "rating": 4.7, "duration_hours": 3.0, "price": 0.0, "lat": 38.7110, "lng": -9.1305, "notes": "fado neighborhood"},
+    {"name": "Tram 28 ride", "category": "transport-experience", "rating": 4.3, "duration_hours": 1.0, "price": 3.0, "lat": 38.7130, "lng": -9.1408, "notes": "early morning to avoid crowds"},
+    {"name": "Pasteis de Belem", "category": "food", "rating": 4.6, "duration_hours": 0.5, "price": 5.0, "lat": 38.6975, "lng": -9.2031, "notes": "the pastel de nata"},
+    {"name": "Castelo de Sao Jorge", "category": "landmark", "rating": 4.5, "duration_hours": 2.0, "price": 15.0, "lat": 38.7139, "lng": -9.1334, "notes": "city views"},
+    {"name": "MAAT museum", "category": "museum", "rating": 4.3, "duration_hours": 2.0, "price": 11.0, "lat": 38.6957, "lng": -9.1937, "notes": "modern art, riverfront"},
+    {"name": "LX Factory", "category": "shopping", "rating": 4.4, "duration_hours": 2.0, "price": 0.0, "lat": 38.7039, "lng": -9.1769, "notes": "design shops + cafes"},
+    {"name": "Sintra day trip", "category": "day-trip", "rating": 4.8, "duration_hours": 8.0, "price": 35.0, "lat": 38.7972, "lng": -9.3905, "notes": "Pena palace; book ahead"},
+    {"name": "Cervejaria Ramiro", "category": "food", "rating": 4.5, "duration_hours": 2.0, "price": 45.0, "lat": 38.7240, "lng": -9.1351, "notes": "seafood; queue"},
+    {"name": "Miradouro da Graca", "category": "viewpoint", "rating": 4.5, "duration_hours": 0.5, "price": 0.0, "lat": 38.7156, "lng": -9.1305, "notes": "sunset spot"},
+    {"name": "National Tile Museum", "category": "museum", "rating": 4.5, "duration_hours": 1.5, "price": 8.0, "lat": 38.7253, "lng": -9.1135, "notes": "rainy-day option"},
+    {"name": "Cais do Sodre nightlife", "category": "nightlife", "rating": 4.2, "duration_hours": 3.0, "price": 20.0, "lat": 38.7060, "lng": -9.1456, "notes": "Pink Street"}
+  ],
+  "tokyo": [
+    {"name": "Senso-ji Temple", "category": "landmark", "rating": 4.5, "duration_hours": 1.5, "price": 0.0, "lat": 35.7148, "lng": 139.7967, "notes": "Asakusa, busy"},
+    {"name": "Tsukiji Outer Market", "category": "food", "rating": 4.4, "duration_hours": 2.0, "price": 30.0, "lat": 35.6654, "lng": 139.7707, "notes": "breakfast sushi"},
+    {"name": "teamLab Planets", "category": "art", "rating": 4.6, "duration_hours": 2.0, "price": 32.0, "lat": 35.6493, "lng": 139.7903, "notes": "book ahead"},
+    {"name": "Shinjuku Gyoen", "category": "park", "rating": 4.6, "duration_hours": 2.0, "price": 5.0, "lat": 35.6852, "lng": 139.7100, "notes": "rainy-day skip"},
+    {"name": "Shibuya Sky", "category": "viewpoint", "rating": 4.5, "duration_hours": 1.5, "price": 22.0, "lat": 35.6588, "lng": 139.7016, "notes": "sunset slot"},
+    {"name": "Akihabara walk", "category": "shopping", "rating": 4.3, "duration_hours": 2.0, "price": 0.0, "lat": 35.7022, "lng": 139.7741, "notes": "anime + electronics"},
+    {"name": "Meiji Shrine", "category": "landmark", "rating": 4.6, "duration_hours": 1.5, "price": 0.0, "lat": 35.6764, "lng": 139.6993, "notes": "Harajuku adjacent"},
+    {"name": "Tokyo National Museum", "category": "museum", "rating": 4.5, "duration_hours": 2.5, "price": 10.0, "lat": 35.7188, "lng": 139.7763, "notes": "Ueno"},
+    {"name": "Ramen Street", "category": "food", "rating": 4.4, "duration_hours": 1.0, "price": 14.0, "lat": 35.6814, "lng": 139.7670, "notes": "Tokyo Station"},
+    {"name": "Shibuya Crossing", "category": "experience", "rating": 4.3, "duration_hours": 0.5, "price": 0.0, "lat": 35.6595, "lng": 139.7005, "notes": "iconic"}
+  ],
+  "default": [
+    {"name": "Old Town Walk", "category": "walking", "rating": 4.4, "duration_hours": 2.5, "price": 0.0, "notes": "free"},
+    {"name": "City Museum", "category": "museum", "rating": 4.3, "duration_hours": 2.0, "price": 12.0, "notes": "rainy-day option"},
+    {"name": "Sunset viewpoint", "category": "viewpoint", "rating": 4.5, "duration_hours": 0.75, "price": 0.0, "notes": "evening only"},
+    {"name": "Local market", "category": "food", "rating": 4.4, "duration_hours": 1.5, "price": 18.0, "notes": "lunch"}
+  ]
+}
