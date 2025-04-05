@@ -17,6 +17,7 @@ def supervisor(state: GraphState) -> dict:
     nxt = _next_step(state)
     return {
         "messages": [{"role": "supervisor", "next": nxt, "rev": state.revision}],
+        "revision": state.revision + 1,
     }
 
 
