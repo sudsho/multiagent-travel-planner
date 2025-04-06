@@ -1,0 +1,43 @@
+# strict-budget profile: smaller llm, prefer cheap options
+llm:
+  provider: openai
+  model: gpt-4o-mini
+  temperature: 0.2
+  max_tokens: 1200
+
+agents:
+  research:
+    enabled: true
+  transport:
+    enabled: true
+  hotel:
+    enabled: true
+  attractions:
+    enabled: true
+  weather:
+    enabled: true
+  budget:
+    enabled: true
+
+graph:
+  recursion_limit: 25
+  parallel_fanout: false
+
+cache:
+  backend: sqlite
+  ttl_seconds:
+    weather: 7200
+    flights: 3600
+    hotels: 3600
+    attractions: 172800
+
+api:
+  rate_limit_per_minute: 30
+  request_timeout_seconds: 10
+
+defaults:
+  currency: USD
+  pace: relaxed
+  party_size: 2
+  prefer_cheap: true
+  free_attractions_first: true
