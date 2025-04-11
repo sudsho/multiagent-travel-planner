@@ -7,16 +7,8 @@ from datetime import date, timedelta
 from typing import Any
 
 from ..llm import LLM
+from ..prompts import RESEARCH_SYSTEM as SYSTEM_PROMPT
 from ..state import GraphState, TravelQuery
-
-
-SYSTEM_PROMPT = """You are a travel research assistant. The user gives a vague trip idea.
-Extract structured fields and pick reasonable defaults if missing.
-Return STRICT JSON with keys:
-  origin, destination, start_date, end_date, duration_days,
-  party_size, budget_total, currency, interests (list), pace, notes.
-Dates as YYYY-MM-DD. Numbers as numbers. Unknown fields as null.
-Do not include any prose."""
 
 
 def _strip_code_fences(s: str) -> str:
