@@ -7,6 +7,9 @@ from typing import Any
 import httpx
 
 from ..cache import make_cache
+from ..rate_limit import TokenBucket
+
+_BUCKET = TokenBucket(rate_per_minute=60)
 
 _API = "https://api.openweathermap.org/data/2.5"
 
@@ -30,6 +33,7 @@ def get_forecast(city: str, on_date: str, *, _client: httpx.Client | None = None
 
     client = _client or httpx.Client(timeout=10.0)
     try:
+        _BUCKET.acquire()
         # geocode first
         g = client.get(
             "https://api.openweathermap.org/geo/1.0/direct",
