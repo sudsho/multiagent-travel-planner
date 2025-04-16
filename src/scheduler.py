@@ -13,7 +13,39 @@ PACE_HOURS = {"relaxed": 5.0, "moderate": 7.0, "packed": 9.0}
 
 def _is_indoor(a: Attraction) -> bool:
     cat = (a.category or "").lower()
-    return any(t in cat for t in ("museum", "art", "shopping", "food"))
+    return any(t in cat for t in ("museum", "art", "shopping", "food", "gallery", "theater"))
+
+
+def _haversine(a, b) -> float:
+    import math
+    if not (a and b):
+        return 0.0
+    lat1, lon1 = a
+    lat2, lon2 = b
+    if None in (lat1, lon1, lat2, lon2):
+        return 0.0
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lon2 - lon1)
+    h = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(h))
+
+
+def _cluster_by_location(items: list[Attraction]) -> list[Attraction]:
+    """greedy nearest-neighbor ordering to keep each block geographically close."""
+    rest = list(items)
+    if not rest:
+        return rest
+    out = [rest.pop(0)]
+    while rest:
+        prev = (out[-1].lat, out[-1].lng) if out[-1].lat else None
+        if prev is None:
+            out.append(rest.pop(0))
+            continue
+        rest.sort(key=lambda a: _haversine(prev, (a.lat, a.lng)) if a.lat else 1e6)
+        out.append(rest.pop(0))
+    return out
 
 
 def _bucket(items: list[Attraction], hours: float) -> list[Attraction]:
@@ -54,13 +86,13 @@ def schedule_days(state: GraphState) -> dict:
         w = weather_by_day.get(cursor)
         sorted_pool = _weather_aware_sort(pool_iter, w)
 
-        morn = _bucket(sorted_pool, block_h)
+        morn = _cluster_by_location(_bucket(sorted_pool, block_h))
         for x in morn:
             sorted_pool.remove(x)
-        aft = _bucket(sorted_pool, block_h)
+        aft = _cluster_by_location(_bucket(sorted_pool, block_h))
         for x in aft:
             sorted_pool.remove(x)
-        eve = _bucket(sorted_pool, block_h)
+        eve = _cluster_by_location(_bucket(sorted_pool, block_h))
         for x in eve:
             sorted_pool.remove(x)
 
