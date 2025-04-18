@@ -17,7 +17,7 @@ from .scheduler import schedule_days
 from .state import GraphState, Itinerary
 
 
-def _finalize(state: GraphState) -> dict:
+def _finalize(state: GraphState, llm: LLM | None = None) -> dict:
     it = Itinerary(
         query=state.query,
         flights=state.flights,
@@ -25,12 +25,20 @@ def _finalize(state: GraphState) -> dict:
         days=state.days,
         budget=state.budget or _empty_budget(state),
     )
-    summary = (
+    base = (
         f"trip to {state.query.destination} for {state.query.duration_days} days, "
         f"{state.query.party_size} traveler(s); "
         f"est. total {it.budget.total} {it.budget.currency}"
     )
-    it.summary = summary
+    if llm is not None:
+        try:
+            from .prompts import SUMMARY_SYSTEM
+            res = llm.complete(SUMMARY_SYSTEM, it.model_dump_json())
+            it.summary = res.text.strip() or base
+        except Exception:
+            it.summary = base
+    else:
+        it.summary = base
     return {"itinerary": it}
 
 
@@ -49,7 +57,7 @@ def build_graph(llm: LLM | None = None):
     sg.add_node("attractions", attractions_agent)
     sg.add_node("schedule", schedule_days)
     sg.add_node("budget", budget_agent)
-    sg.add_node("finalize", _finalize)
+    sg.add_node("finalize", lambda s: _finalize(s, llm=llm))
 
     def _route(state: GraphState):
         return _next_step(state)
