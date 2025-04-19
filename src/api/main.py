@@ -26,6 +26,7 @@ class PlanRequest(BaseModel):
 class PlanResponse(BaseModel):
     summary: str
     itinerary: dict[str, Any]
+    markdown: str | None = None
 
 
 @app.get("/health")
@@ -42,7 +43,12 @@ def plan(req: PlanRequest) -> PlanResponse:
     except Exception as e:
         logger.exception("planning failed")
         raise HTTPException(status_code=500, detail=str(e))
-    return PlanResponse(summary=it.summary or "", itinerary=it.model_dump(mode="json"))
+    from ..render import render_markdown
+    return PlanResponse(
+        summary=it.summary or "",
+        itinerary=it.model_dump(mode="json"),
+        markdown=render_markdown(it),
+    )
 
 
 if __name__ == "__main__":
