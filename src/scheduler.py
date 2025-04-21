@@ -71,6 +71,8 @@ def schedule_days(state: GraphState) -> dict:
     q = state.query
     if not q.start_date or not q.duration_days:
         return {"errors": state.errors + ["scheduler: missing start_date/duration"]}
+    if not state.attractions:
+        return {"errors": state.errors + ["scheduler: no attractions"]}
 
     pool = sorted(state.attractions, key=lambda a: -(a.rating or 0))
     weather_by_day = {w.date: w for w in state.weather}
