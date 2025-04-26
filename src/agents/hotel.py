@@ -13,7 +13,8 @@ def hotel_agent(state: GraphState) -> dict:
     nights = max(1, (q.end_date - q.start_date).days)
     target_per_night = None
     if q.budget_total:
-        target_per_night = (q.budget_total * 0.4) / nights  # ~40% of budget on lodging
+        # leave ~30% for flights, ~40% for lodging, rest for activities + food
+        target_per_night = (q.budget_total * 0.4) / nights / max(1, q.party_size)
 
     options = search_hotels(
         city=q.destination,
