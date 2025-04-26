@@ -26,6 +26,47 @@ def _parse_query(text: str) -> dict[str, Any]:
         return {}
 
 
+_KNOWN_CITIES = {
+    "lisbon", "porto", "madrid", "barcelona", "paris", "london", "amsterdam",
+    "rome", "berlin", "tokyo", "kyoto", "osaka", "bangkok", "singapore",
+    "delhi", "mumbai", "bangalore", "new york", "san francisco",
+    "los angeles", "chicago", "louisville", "boston", "miami",
+}
+
+
+def _heuristic_parse(q: TravelQuery) -> TravelQuery:
+    """very small regex parser used when no LLM is available."""
+    text = (q.raw_text or "").lower()
+    updates: dict[str, Any] = {}
+
+    if not q.destination:
+        for c in _KNOWN_CITIES:
+            if c in text:
+                updates["destination"] = c
+                break
+
+    m = re.search(r"(\d+)\s*(?:day|days|d)\b", text)
+    if m and not q.duration_days:
+        updates["duration_days"] = int(m.group(1))
+
+    m = re.search(r"\$?(\d{3,5})\s*(?:usd|dollars|\$)?", text)
+    if m and not q.budget_total:
+        updates["budget_total"] = float(m.group(1))
+
+    if "solo" in text and not q.party_size:
+        updates["party_size"] = 1
+
+    interests = []
+    for kw in ("food", "museum", "art", "hike", "park", "beach", "shop", "anime",
+              "architecture", "history", "nightlife", "cafe"):
+        if kw in text:
+            interests.append(kw)
+    if interests and not q.interests:
+        updates["interests"] = interests
+
+    return q.model_copy(update=updates)
+
+
 def research_agent(state: GraphState, llm: LLM | None = None) -> dict:
     """fill out TravelQuery from raw_text."""
     q = state.query
@@ -33,11 +74,14 @@ def research_agent(state: GraphState, llm: LLM | None = None) -> dict:
         return {"errors": state.errors + ["no raw_text"]}
 
     if llm is None:
-        # offline / smoke-test default fallback
-        merged = q
+        # offline / smoke-test default fallback. try a tiny regex-based parse.
+        merged = _heuristic_parse(q)
     else:
-        out = llm.complete(SYSTEM_PROMPT, q.raw_text)
-        parsed = _parse_query(out.text)
+        try:
+            out = llm.complete(SYSTEM_PROMPT, q.raw_text)
+            parsed = _parse_query(out.text)
+        except Exception:
+            parsed = {}
         merged = q.model_copy(update={
             k: v for k, v in parsed.items()
             if v is not None and k in TravelQuery.model_fields
