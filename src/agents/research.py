@@ -96,11 +96,13 @@ def research_agent(state: GraphState, llm: LLM | None = None) -> dict:
             "end_date": merged.start_date + timedelta(days=merged.duration_days - 1)
         })
     if not merged.start_date:
-        # default: 30 days out for 5 days
+        # default: 30 days out, length from duration_days or 5
+        nd = merged.duration_days or 5
+        sd = date.today() + timedelta(days=30)
         merged = merged.model_copy(update={
-            "start_date": date.today() + timedelta(days=30),
-            "end_date": date.today() + timedelta(days=34),
-            "duration_days": 5,
+            "start_date": sd,
+            "end_date": sd + timedelta(days=nd - 1),
+            "duration_days": nd,
         })
 
     notes = (merged.notes or "")[:200]
