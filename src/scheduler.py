@@ -48,10 +48,12 @@ def _cluster_by_location(items: list[Attraction]) -> list[Attraction]:
     return out
 
 
-def _bucket(items: list[Attraction], hours: float) -> list[Attraction]:
+def _bucket(items: list[Attraction], hours: float, max_items: int = 4) -> list[Attraction]:
     out, used = [], 0.0
     for a in items:
-        if used + a.duration_hours > hours:
+        if len(out) >= max_items:
+            break
+        if used + a.duration_hours > hours and out:
             continue
         out.append(a)
         used += a.duration_hours
