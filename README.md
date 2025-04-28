@@ -63,13 +63,40 @@ against real APIs gives much better results.
 ```
 pip install -r requirements.txt
 cp .env.example .env  # fill keys
-python -m src.api.main  # FastAPI on :8000
+uvicorn src.api.main:app --reload --port 8000
 streamlit run streamlit_app.py
+```
+
+or via Make:
+
+```
+make install
+make api    # uvicorn on :8000
+make ui     # streamlit on :8501
+make test
+make evals
 ```
 
 ## config
 
 profiles in `configs/`. defaults at `configs/default.yaml`,
-strict-budget at `configs/budget_strict.yaml`.
+strict-budget at `configs/budget_strict.yaml`. select via
+`PLANNER_PROFILE=budget_strict` env var.
 
-WIP, see `_planning/` for design notes.
+## endpoints
+
+- `POST /plan` — body: `{"query": "5 days lisbon...", "profile": "default"}`
+- `GET  /healthz` — liveness
+- `GET  /readyz`  — readiness (checks cache + at least one llm key)
+
+## limits
+
+- requests are rate-limited per ip, see `api.rate_limit_per_minute`
+- max recursion depth on the graph is 30 (configurable)
+- itinerary length capped at 14 days; longer queries get rejected upfront
+
+## testing
+
+`make test` runs unit + integration. integration tests use stub tools so
+they don't need real API keys. `make evals` runs three end-to-end
+scenarios and prints pass/fail per agent.
