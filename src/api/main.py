@@ -6,6 +6,7 @@ import os
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from ..graph import run as run_graph
@@ -16,6 +17,12 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("travel.api")
 
 app = FastAPI(title="multiagent-travel-planner", version="0.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class PlanRequest(BaseModel):
