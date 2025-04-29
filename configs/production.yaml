@@ -1,0 +1,45 @@
+# production profile
+llm:
+  provider: openai
+  model: gpt-4o-mini
+  temperature: 0.2
+  max_tokens: 1500
+
+agents:
+  research:
+    enabled: true
+  transport:
+    enabled: true
+  hotel:
+    enabled: true
+  attractions:
+    enabled: true
+  weather:
+    enabled: true
+  budget:
+    enabled: true
+
+graph:
+  recursion_limit: 25
+  parallel_fanout: true
+
+cache:
+  backend: redis
+  ttl_seconds:
+    weather: 3600
+    flights: 1800
+    hotels: 1800
+    attractions: 86400
+
+api:
+  rate_limit_per_minute: 30
+  request_timeout_seconds: 20
+
+logging:
+  level: INFO
+  json: true
+
+defaults:
+  currency: USD
+  pace: moderate
+  party_size: 2
