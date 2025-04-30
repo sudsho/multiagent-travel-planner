@@ -28,3 +28,20 @@ jobs:
           GOOGLE_MAPS_API_KEY: ""
         run: |
           pytest -q --cov=src --cov-report=term
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: set up buildx
+        uses: docker/setup-buildx-action@v3
+      - name: build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: multiagent-travel-planner:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
