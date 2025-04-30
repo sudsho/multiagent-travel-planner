@@ -41,6 +41,30 @@ def health() -> dict:
     return {"ok": True}
 
 
+@app.get("/healthz")
+def healthz() -> dict:
+    """Liveness probe. Cheap, always returns ok if the process is up."""
+    return {"ok": True}
+
+
+@app.get("/readyz")
+def readyz() -> dict:
+    """Readiness probe. Verifies at least one llm key + cache reachable."""
+    has_llm = bool(os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY"))
+    if not has_llm:
+        raise HTTPException(status_code=503, detail="no llm api key configured")
+
+    backend = os.getenv("CACHE_BACKEND", "sqlite").lower()
+    if backend == "redis":
+        try:
+            import redis  # type: ignore
+            client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"))
+            client.ping()
+        except Exception as e:  # noqa: BLE001
+            raise HTTPException(status_code=503, detail=f"redis unreachable: {e}")
+    return {"ok": True, "llm": True, "cache": backend}
+
+
 @app.post("/plan", response_model=PlanResponse)
 def plan(req: PlanRequest) -> PlanResponse:
     logger.info("plan request: %s", req.query[:80])
