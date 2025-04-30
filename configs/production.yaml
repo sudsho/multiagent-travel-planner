@@ -34,10 +34,19 @@ cache:
 api:
   rate_limit_per_minute: 30
   request_timeout_seconds: 20
+  cors_allow_origins: []  # set via CORS_ALLOW_ORIGINS env in deploy
+  max_query_chars: 1200
+  max_itinerary_days: 14
 
 logging:
   level: INFO
   json: true
+  request_id_header: x-request-id
+
+retries:
+  llm_max_retries: 3
+  api_max_retries: 2
+  backoff_base_seconds: 0.5
 
 defaults:
   currency: USD
