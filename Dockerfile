@@ -1,22 +1,42 @@
-FROM python:3.12-slim
+# multi-stage build to keep final image lean
+FROM python:3.12-slim AS builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
-WORKDIR /app
+WORKDIR /build
 
-# curl needed for HEALTHCHECK
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --prefix=/install -r requirements.txt
+
+
+FROM python:3.12-slim AS runtime
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH=/install/bin:$PATH \
+    PYTHONPATH=/install/lib/python3.12/site-packages
+
+WORKDIR /app
+
+# curl for healthcheck only
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --shell /bin/bash app
+
+COPY --from=builder /install /install
 
 COPY src ./src
 COPY configs ./configs
 COPY data ./data
 COPY streamlit_app.py .
+
+USER app
 
 EXPOSE 8000
 
