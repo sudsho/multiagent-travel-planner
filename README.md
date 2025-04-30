@@ -100,3 +100,25 @@ strict-budget at `configs/budget_strict.yaml`. select via
 `make test` runs unit + integration. integration tests use stub tools so
 they don't need real API keys. `make evals` runs three end-to-end
 scenarios and prints pass/fail per agent.
+
+## deploy
+
+local docker:
+
+```
+cp .env.example .env  # fill keys
+docker compose up --build
+# api: http://localhost:8000
+# ui:  http://localhost:8501
+```
+
+production checklist:
+
+- set `PLANNER_PROFILE=production` (uses redis cache, json logs, stricter rate limit)
+- supply `OPENAI_API_KEY` (or anthropic) and at least `OPENWEATHER_API_KEY`
+- run behind a reverse proxy with TLS; the api itself is plain http
+- set `CORS_ALLOW_ORIGINS` to your UI origin(s), not `*`
+- scale `WORKERS` to ~2x cpu cores
+- mount a persistent volume for the redis service or point at a managed redis
+
+cloud notes are in `_planning/deploy.md`.
