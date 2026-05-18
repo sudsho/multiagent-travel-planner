@@ -85,9 +85,9 @@ strict-budget at `configs/budget_strict.yaml`. select via
 
 ## endpoints
 
-- `POST /plan` — body: `{"query": "5 days lisbon...", "profile": "default"}`
-- `GET  /healthz` — liveness
-- `GET  /readyz`  — readiness (checks cache + at least one llm key)
+- `POST /plan` - body: `{"query": "5 days lisbon...", "profile": "default"}`
+- `GET  /healthz` - liveness
+- `GET  /readyz`  - readiness (checks cache + at least one llm key)
 
 ## limits
 
