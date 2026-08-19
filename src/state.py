@@ -114,6 +114,10 @@ class GraphState(BaseModel):
     budget: Optional[BudgetBreakdown] = None
     itinerary: Optional[Itinerary] = None
     messages: Annotated[list[dict[str, Any]], _merge_messages] = Field(default_factory=list)
+    # names of worker steps the supervisor has already dispatched. lets routing
+    # advance past a step that legitimately produced no output (e.g. transport
+    # with no origin) instead of looping on it forever.
+    attempted: Annotated[list[str], _merge_messages] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)
     revision: int = 0
 

@@ -47,40 +47,57 @@ def _empty_budget(state: GraphState):
     return BudgetBreakdown(currency=state.query.currency)
 
 
+# route value (from _next_step) -> graph node name. the node names carry a
+# `_node` suffix so they never collide with fields on GraphState (langgraph
+# rejects a node whose name equals a state key, e.g. `hotel`, `weather`,
+# `attractions`, `budget`).
+_ROUTE_TO_NODE = {
+    "research": "research_node",
+    "transport": "transport_node",
+    "hotel": "hotel_node",
+    "weather": "weather_node",
+    "attractions": "attractions_node",
+    "schedule": "schedule_node",
+    "budget": "budget_node",
+    "finalize": "finalize_node",
+}
+
+
+def _mark_attempted(route_name: str, fn):
+    """wrap a worker so every dispatch records itself in state.attempted."""
+    def _inner(state: GraphState) -> dict:
+        out = dict(fn(state) or {})
+        out["attempted"] = [route_name]
+        return out
+    return _inner
+
+
 def build_graph(llm: LLM | None = None):
     sg = StateGraph(GraphState)
     sg.add_node("supervisor", supervisor)
-    sg.add_node("research", lambda s: research_agent(s, llm=llm))
-    sg.add_node("transport", transport_agent)
-    sg.add_node("hotel", hotel_agent)
-    sg.add_node("weather", weather_agent)
-    sg.add_node("attractions", attractions_agent)
-    sg.add_node("schedule", schedule_days)
-    sg.add_node("budget", budget_agent)
-    sg.add_node("finalize", lambda s: _finalize(s, llm=llm))
+    sg.add_node("research_node", _mark_attempted("research", lambda s: research_agent(s, llm=llm)))
+    sg.add_node("transport_node", _mark_attempted("transport", transport_agent))
+    sg.add_node("hotel_node", _mark_attempted("hotel", hotel_agent))
+    sg.add_node("weather_node", _mark_attempted("weather", weather_agent))
+    sg.add_node("attractions_node", _mark_attempted("attractions", attractions_agent))
+    sg.add_node("schedule_node", _mark_attempted("schedule", schedule_days))
+    sg.add_node("budget_node", _mark_attempted("budget", budget_agent))
+    sg.add_node("finalize_node", lambda s: _finalize(s, llm=llm))
 
-    def _route(state: GraphState):
+    def _route(state: GraphState) -> str:
+        # _next_step returns a logical route value ("hotel", "budget", ...);
+        # the path map below turns it into the matching graph node name.
         return _next_step(state)
 
     sg.set_entry_point("supervisor")
-    sg.add_conditional_edges(
-        "supervisor",
-        _route,
-        {
-            "research": "research",
-            "transport": "transport",
-            "hotel": "hotel",
-            "weather": "weather",
-            "attractions": "attractions",
-            "schedule": "schedule",
-            "budget": "budget",
-            "finalize": "finalize",
-        },
-    )
-    # every worker returns to supervisor
-    for n in ["research", "transport", "hotel", "weather", "attractions", "schedule", "budget"]:
-        sg.add_edge(n, "supervisor")
-    sg.add_edge("finalize", END)
+    sg.add_conditional_edges("supervisor", _route, _ROUTE_TO_NODE)
+    # every worker returns to the supervisor for the next routing decision
+    for node in [
+        "research_node", "transport_node", "hotel_node", "weather_node",
+        "attractions_node", "schedule_node", "budget_node",
+    ]:
+        sg.add_edge(node, "supervisor")
+    sg.add_edge("finalize_node", END)
     return sg.compile()
 
 

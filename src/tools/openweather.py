@@ -71,7 +71,9 @@ def get_forecast(city: str, on_date: str, *, _client: httpx.Client | None = None
 
 
 def _stub(city: str, on_date: str, cache, key) -> dict[str, Any]:
-    seed = abs(hash((city.lower(), on_date))) % 100
+    import hashlib
+    # stable across processes (builtin hash() is PYTHONHASHSEED-randomized)
+    seed = int(hashlib.md5(f"{city.lower()}|{on_date}".encode()).hexdigest()[:8], 16) % 100
     out = {
         "temp_c_min": 12 + (seed % 12),
         "temp_c_max": 18 + (seed % 14),

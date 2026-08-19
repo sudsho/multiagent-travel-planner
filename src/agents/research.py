@@ -26,12 +26,15 @@ def _parse_query(text: str) -> dict[str, Any]:
         return {}
 
 
-_KNOWN_CITIES = {
+# sorted longest-first so matching is deterministic and multi-word cities win
+# over any substring; a set here would iterate in a hash-seed-dependent order
+# and could pick the wrong city.
+_KNOWN_CITIES = sorted({
     "lisbon", "porto", "madrid", "barcelona", "paris", "london", "amsterdam",
     "rome", "berlin", "tokyo", "kyoto", "osaka", "bangkok", "singapore",
     "delhi", "mumbai", "bangalore", "new york", "san francisco",
     "los angeles", "chicago", "louisville", "boston", "miami",
-}
+}, key=len, reverse=True)
 
 
 def _heuristic_parse(q: TravelQuery) -> TravelQuery:
@@ -39,9 +42,21 @@ def _heuristic_parse(q: TravelQuery) -> TravelQuery:
     text = (q.raw_text or "").lower()
     updates: dict[str, Any] = {}
 
+    # origin: "from <city>" - captured first so it is not also read as the
+    # destination when both cities appear in the prompt.
+    origin = q.origin
+    if not origin:
+        m = re.search(r"\bfrom\s+([a-z ]+?)(?:,|\.|$|\s+(?:to|for|with|late|early|under|around|next))", text)
+        if m:
+            for c in _KNOWN_CITIES:
+                if c in m.group(1):
+                    origin = c
+                    updates["origin"] = c
+                    break
+
     if not q.destination:
         for c in _KNOWN_CITIES:
-            if c in text:
+            if c in text and c != origin:
                 updates["destination"] = c
                 break
 
@@ -82,10 +97,14 @@ def research_agent(state: GraphState, llm: LLM | None = None) -> dict:
             parsed = _parse_query(out.text)
         except Exception:
             parsed = {}
-        merged = q.model_copy(update={
+        # validate (not model_copy) so string values from the LLM, e.g.
+        # start_date "2025-10-22", are coerced to their real types (date).
+        base = q.model_dump()
+        base.update({
             k: v for k, v in parsed.items()
             if v is not None and k in TravelQuery.model_fields
         })
+        merged = TravelQuery.model_validate(base)
 
     if not merged.duration_days and merged.start_date and merged.end_date:
         merged = merged.model_copy(update={

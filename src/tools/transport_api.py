@@ -86,7 +86,9 @@ def _iso_duration_to_minutes(s: str) -> int:
 
 
 def _stub_flights(origin, dest, date_str) -> list[dict[str, Any]]:
-    seed = abs(hash((origin, dest, date_str)))
+    import hashlib
+    # stable across processes (builtin hash() is PYTHONHASHSEED-randomized)
+    seed = int(hashlib.md5(f"{origin}|{dest}|{date_str}".encode()).hexdigest()[:8], 16)
     base = 180 + (seed % 320)
     return [
         {

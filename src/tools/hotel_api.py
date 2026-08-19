@@ -98,7 +98,9 @@ def _nights(ci: str, co: str) -> int:
 
 
 def _stub_hotels(city, ci, co, guests) -> list[dict[str, Any]]:
-    seed = abs(hash(city.lower()))
+    import hashlib
+    # stable across processes (builtin hash() is PYTHONHASHSEED-randomized)
+    seed = int(hashlib.md5(city.lower().encode()).hexdigest()[:8], 16)
     base = 80 + (seed % 120)
     return [
         {
